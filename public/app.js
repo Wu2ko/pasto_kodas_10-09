@@ -30,9 +30,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 var ajaxService = function ajaxService(term) {
-  var url = "https://api.postit.lt/?term=";
-  var key = "j4loc5l3xiYUkomGMQdQ";
-  return fetch("".concat(url).concat(term, "&key=").concat(key)).then(function (response) {
+  var url = "https://www.omdbapi.com/?t=";
+  var key = "e16ebede";
+  return fetch("".concat(url).concat(term, "&apikey=").concat(key)).then(function (response) {
     return response.json();
   });
 };
@@ -51,7 +51,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 var form = function form() {
-  return "\n    <div class=\"form-group mb-2\">\n    <input type=\"text\" placeholder=\"Adresas\" class=\"form-control term\">\n    </div>\n    <div class=\"form-group mb-2\">\n    <input type=\"text\" class=\"form-control result\" readonly>\n    </div>\n    <button type=\"submit\" class=\"btn btn-primary\"> Ieskoti kodo</button>\n    ";
+  return "\n    <div class=\"form-group mb-2 offset-4 col-4\">\n    <input type=\"text\" placeholder=\"Enter movie name\" class=\"form-control term\">\n</div>\n<button type=\"submit\" class=\"btn btn-primary mt-2 mb-4 col-2\"> Find my movie</button>\n<div class=\"form-group mb-2\">\n    Title\n    <input type=\"text\" class=\"form-control resultTitle\" readonly>\n</div>\n<div class =\"row\">\n<div class=\"col-3\">\n    <div class=\"\">\n        Release date\n        <input type=\"box\" class=\"form-control resultRelease\" readonly>\n    </div>\n    <div class=\"\">\n        Runtime\n        <input type=\"box\" class=\"form-control resultRuntime\" readonly>\n    </div>\n    <div class=\"\">\n        Genre\n        <input type=\"box\" class=\"form-control resultGenre\" readonly>\n    \n    </div>\n    </div>\n\n<div class=\"col\">\n<img id=\"poster\" class=\"img-thumbnail resultPoster\" src=\"\">\n</div>\n</div>\n<div class=\"mt-4\"><h3>Full details:</h3></div>\n<div class=\"row resultFull\"></div>\n\n    ";
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (form);
 
@@ -102,7 +102,39 @@ var searchCode = function searchCode() {
     }).then(function () {
       return console.log(searchResponse);
     }).then(function () {
-      document.querySelector('.result').value = searchResponse.data[0].post_code;
+      /////////check if movie found
+      if (searchResponse.Error) {
+        document.querySelector('.term').value = "";
+        window.alert("Movie not found, please try again.");
+        /////////////missing poster could be replaced with generic img here
+        if (searchResponse.Poster.value == "N/A") {
+          console.log("*********no poster*********"); //
+        }
+      } ///////////continue if found
+      else {
+        document.querySelector('.resultTitle').value = searchResponse.Title;
+        document.querySelector('.resultRelease').value = searchResponse.Released;
+        //if full date unavailable
+        if (searchResponse.Released == "N/A") {
+          document.querySelector('.resultRelease').value = searchResponse.Year;
+          console.log("*********no full date*********");
+        } ///////////
+        document.querySelector('.resultRuntime').value = searchResponse.Runtime;
+        document.querySelector('.resultGenre').value = searchResponse.Genre;
+        document.querySelector(".resultPoster").src = searchResponse.Poster;
+
+        // document.querySelector('.resultFull').value = searchResponse.Genre
+
+        for (var key in searchResponse) {
+          console.log("".concat(key, ":").concat(searchResponse[key]));
+          ///from mdn
+          var fragment = document.querySelector('.resultFull');
+          var li = fragment.appendChild(document.createElement('div'));
+          li.className = "".concat(key, " col-4 flex mb-3 keyForCss form-control");
+          li.textContent = "".concat(key, ": ").concat(searchResponse[key]);
+          document.body.appendChild(fragment);
+        }
+      }
     });
   });
 };
